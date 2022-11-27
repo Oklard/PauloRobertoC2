@@ -1,57 +1,73 @@
+import datetime
 from bson import ObjectId
 import pandas as pd
 from model.Veiculo import Veiculo
+from model.Cliente import Cliente
+from controller.controller_Cliente import Controller_Cliente
 from conexion.mongo_queries import MongoQueries
+from reports.relatorios import Relatorio
 
 class Controller_Veiculo:
     def __init__(self):
+        self.ctrl_cliente = Controller_Cliente()
+        self.ctrl_Veiculo = Controller_Veiculo()
         self.mongo = MongoQueries()
+        self.relatorio = Relatorio()
         
-    def inserir_Veiculo(self) -> Veiculo:
-        # Cria uma nova conexão com o banco
+    def inserir_veiculo(self) -> Veiculo:
+        # Cria uma nova conexão com o banco 
         self.mongo.connect()
         
-        # Lista os pedido existentes para inserir no item de pedido
-        self.relatorios.get_relatorio_Veiculo()
-        codCarro = int(str(input("Digite o número do Veiculo: ")))
-        Veiculo = self.valida_veiculo(codCarro)
-        if Veiculo == None:
+        self.relatorio.get_relatorio_clientes()
+        cpf = str(input("Digite o número do CPF do Cliente: "))
+        cliente = self.valida_cliente(cpf)
+        if cliente == None:
             return None
 
-        proximo_item_pedido = self.mongo.db["Veiculo"].aggregate([
-                                                    {
-                                                        '$group': {
-                                                            '_id': '$Veiculo', 
-                                                            'proximo_veiculo': {
-                                                                '$max': '$codCarro'
-                                                            }
-                                                        }
-                                                    }, {
-                                                        '$project': {
-                                                            'proximo_veiculo': {
-                                                                '$sum': [
-                                                                    '$proximo_veiculo', 1
-                                                                ]
-                                                            }, 
-                                                            '_id': 0
-                                                        }
-                                                    }
-                                                ])
+        # Lista os fornecedores existentes para inserir no pedido
+        #self.relatorio.get_relatorio_fornecedores()
+        #cnpj = str(input("Digite o número do CNPJ do Fornecedor: "))
+        #fornecedor = self.valida_fornecedor(cnpj)
+        #if fornecedor == None:
+        #    return None
 
-        proximo_veiculo = int(list(proximo_item_pedido)[0]['proximo_item_pedido'])
+        data_hoje = datetime.today().strftime("%m-%d-%Y")
+        proximo_veiculo = self.mongo.db["Veiculo"].aggregate([
+                                                            {
+                                                                '$group': {
+                                                                    '_id': '$Veiculo', 
+                                                                    'proximo_veiculo': {
+                                                                        '$max': '$codCaro'
+                                                                    }
+                                                                }
+                                                            }, {
+                                                                '$project': {
+                                                                    'proximo_carro': {
+                                                                        '$sum': [
+                                                                            '$proximo_veiculo', 1
+                                                                        ]
+                                                                    }, 
+                                                                    '_id': 0
+                                                                }
+                                                            }
+                                                        ])
+
+        proximo_veiculo = int(list(proximo_veiculo)[0]['proximo_veiculo'])
         # Cria um dicionário para mapear as variáveis de entrada e saída
-        data = dict(codigo_item_pedido=proximo_item_pedido, valor_unitario=valor_unitario, quantidade=quantidade, codigo_pedido=int(pedido.get_codigo_pedido()), codigo_produto=int(produto.get_codigo()))
-        # Insere e Recupera o código do novo item de pedido
-        id_item_pedido = self.mongo.db["itens_pedido"].insert_one(data)
-        # Recupera os dados do novo item de pedido criado transformando em um DataFrame
-        df_item_pedido = self.recupera_item_pedido(id_item_pedido.inserted_id)
-        # Cria um novo objeto Item de Pedido
-        novo_item_pedido = ItemPedido(df_item_pedido.codigo_item_pedido.values[0], df_item_pedido.quantidade.values[0], df_item_pedido.valor_unitario.values[0], pedido, produto)
-        # Exibe os atributos do novo Item de Pedido
-        print(novo_item_pedido.to_string())
+        data = dict(codCarro=proximo_veiculo, ano=data_hoje, cpf=cliente.get_CPF())
+        # Insere e Recupera o código do novo pedido
+        id_veiculo = self.mongo.db["Veiculo"].insert_one(data)
+        # Recupera os dados do novo produto criado transformando em um DataFrame
+        #revivsa se é recupera veiculo codigo ou so veiculo
+        df_veiculo = self.recupera_veiculo(id_veiculo.inserted_id)
+        # Cria um novo objeto Produto
+        novo_veiculo = Veiculo(df_veiculo.codCarro.values[0], df_veiculo.ano.values[0], cliente)
+        # Exibe os atributos do novo produto
+        print(novo_veiculo.to_string())
         self.mongo.close()
-        # Retorna o objeto novo_item_pedido para utilização posterior, caso necessário
-        return novo_item_pedido
+        # Retorna o objeto novo_pedido para utilização posterior, caso necessário
+        return novo_veiculo
+
 
     def atualizar_veiculo(self) -> Veiculo:
         # Cria uma nova conexão com o banco que permite alteração
@@ -97,7 +113,7 @@ class Controller_Veiculo:
             Veiculo_excluido = Veiculo(df_veiculo.codigo_veiculo.values[0], df_veiculo.descricao_veiculo.values[0])
             # Exibe os atributos do veiculo excluído
             print("veiculo Removido com Sucesso!")
-            print(veiculo_excluido.to_string())
+            print(Veiculo_excluido.to_string())
             self.mongo.close()
         else:
             self.mongo.close()
@@ -149,3 +165,44 @@ class Controller_Veiculo:
             self.mongo.close()
 
         return df_veiculo
+    def valida_cliente(self, cpf:str=None) -> Cliente:
+        if self.ctrl_cliente.verifica_existencia_cliente(cpf=cpf, external=True):
+            print(f"O CPF {cpf} informado não existe na base.")
+            return None
+        else:
+            # Recupera os dados do novo cliente criado transformando em um DataFrame
+            df_cliente = self.ctrl_cliente.recupera_cliente(cpf=cpf, external=True)
+            # Cria um novo objeto cliente
+            cliente = Cliente(df_cliente.cpf.values[0], df_cliente.nome.values[0])
+            return cliente
+    def excluir_veiculo(self):
+        # Cria uma nova conexão com o banco que permite alteração
+        self.mongo.connect()
+
+        # Solicita ao usuário o código do produto a ser alterado
+        codigo_veiculo = int(input("Código do Pedido que irá excluir: "))        
+
+        # Verifica se o produto existe na base de dados
+        if not self.verifica_existencia_veiculo(codigo_veiculo):            
+            # Recupera os dados do novo produto criado transformando em um DataFrame
+            df_veiculo = self.recupera_veiculo_codigo(codigo_veiculo)
+            cliente = self.valida_cliente(df_veiculo.cpf.values[0])
+            
+            opcao_excluir = input(f"Tem certeza que deseja excluir o pedido {codigo_veiculo} [S ou N]: ")
+            if opcao_excluir.lower() == "s":
+                print("Atenção, caso o pedido possua itens, também serão excluídos!")
+                opcao_excluir = input(f"Tem certeza que deseja excluir o pedido {codigo_veiculo} [S ou N]: ")
+                if opcao_excluir.lower() == "s":
+                    # Revome o produto da tabela
+                    self.mongo.db["Veiculo"].delete_one({"codigo_veiculo": codigo_veiculo})
+                    print("Itens do pedido removidos com sucesso!")
+                    self.mongo.db["Veiculo"].delete_one({"codigo_veiculo": codigo_veiculo})
+                    # Cria um novo objeto Produto para informar que foi removido
+                    veiculo_excluido = Veiculo(df_veiculo.codigo_veiculo.values[0], df_veiculo.ano.values[0], cliente)
+                    self.mongo.close()
+                    # Exibe os atributos do produto excluído
+                    print("Pedido Removido com Sucesso!")
+                    print(veiculo_excluido.to_string())
+        else:
+            self.mongo.close()
+            print(f"O código {codigo_veiculo} não existe.")

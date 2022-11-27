@@ -12,9 +12,9 @@ ctrl_cliente = Controller_Cliente()
 def reports(opcao_relatorio:int=0):
 
     if opcao_relatorio == 1:
-        relatorio.get_relatorio_Veiculo()
+        relatorio.get_relatorio_veiculos()
     elif opcao_relatorio == 2:
-        relatorio.get_relatorio_Cliente()
+        relatorio.get_relatorio_clientes()
     
 
 def inserir(opcao_inserir:int=0):
@@ -27,19 +27,19 @@ def inserir(opcao_inserir:int=0):
 def atualizar(opcao_atualizar:int=0):
 
     if opcao_atualizar == 1:
-        relatorio.get_relatorio_Veiculo()
+        relatorio.get_relatorio_produtos()
         veiculo_atualizada = ctrl_veiculo.atualizar_veiculo()
     elif opcao_atualizar == 2:
-        relatorio.get_relatorio_Cliente()
+        relatorio.get_relatorio_clientes()
         cliente_atualizado = ctrl_cliente.atualizar_cliente()
     
 def excluir(opcao_excluir:int=0):
 
     if opcao_excluir == 1:
-        relatorio.get_relatorio_Veiculo()
+        relatorio.get_relatorio_veiculo()
         ctrl_veiculo.excluir_veiculo()
     elif opcao_excluir == 2:                
-        relatorio.get_relatorio_Cliente()
+        relatorio.get_relatorio_clientes()
         ctrl_cliente.excluir_cliente()
     
 def run():

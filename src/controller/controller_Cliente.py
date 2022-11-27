@@ -11,7 +11,7 @@ class Controller_Cliente:
         self.mongo.connect()
 
         # Solicita ao usuario o novo CPF
-        cpf = input("CPF (Novo): ")
+        cpf = input (str("CPF (Novo): "))
 
         if self.verifica_existencia_cliente(cpf):
             # Solicita ao usuario o novo nome
@@ -37,7 +37,7 @@ class Controller_Cliente:
         self.mongo.connect()
 
         # Solicita ao usuário o código do cliente a ser alterado
-        cpf = input("CPF do cliente que deseja alterar o nome: ")
+        cpf = input (str("CPF do cliente que deseja alterar o nome: "))
 
         # Verifica se o cliente existe na base de dados
         if not self.verifica_existencia_cliente(cpf):
@@ -64,7 +64,7 @@ class Controller_Cliente:
         self.mongo.connect()
 
         # Solicita ao usuário o CPF do Cliente a ser alterado
-        cpf = input("CPF do Cliente que irá excluir: ")
+        cpf = input( str("CPF do Cliente que irá excluir: "))
 
         # Verifica se o cliente existe na base de dados
         if not self.verifica_existencia_cliente(cpf):            
@@ -109,3 +109,13 @@ class Controller_Cliente:
             self.mongo.close()
 
         return df_cliente
+    def valida_cliente(self, cpf:str=None) -> Cliente:
+        if self.ctrl_cliente.verifica_existencia_cliente(cpf=cpf, external=True):
+            print(f"O CPF {cpf} informado não existe na base.")
+            return None
+        else:
+            # Recupera os dados do novo cliente criado transformando em um DataFrame
+            df_cliente = self.ctrl_cliente.recupera_cliente(cpf=cpf, external=True)
+            # Cria um novo objeto cliente
+            cliente = Cliente(df_cliente.cpf.values[0], df_cliente.nome.values[0])
+            return cliente
