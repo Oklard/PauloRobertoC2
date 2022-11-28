@@ -109,13 +109,4 @@ class Controller_Cliente:
             self.mongo.close()
 
         return df_cliente
-    def valida_cliente(self, cpf:str=None) -> Cliente:
-        if self.ctrl_cliente.verifica_existencia_cliente(cpf=cpf, external=True):
-            print(f"O CPF {cpf} informado não existe na base.")
-            return None
-        else:
-            # Recupera os dados do novo cliente criado transformando em um DataFrame
-            df_cliente = self.ctrl_cliente.recupera_cliente(cpf=cpf, external=True)
-            # Cria um novo objeto cliente
-            cliente = Cliente(df_cliente.cpf.values[0], df_cliente.nome.values[0])
-            return cliente
+    

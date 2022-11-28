@@ -1,8 +1,8 @@
 from utils import config
 from utils.splash_screen import SplashScreen
 from reports.relatorios import Relatorio
-from controller.controller_Veiculo import Controller_Veiculo
-from controller.controller_Cliente import Controller_Cliente
+from controller.Controller_Veiculo import Controller_Veiculo
+from controller.Controller_Cliente import Controller_Cliente
 
 tela_inicial = SplashScreen()
 relatorio = Relatorio()
@@ -12,9 +12,9 @@ ctrl_cliente = Controller_Cliente()
 def reports(opcao_relatorio:int=0):
 
     if opcao_relatorio == 1:
-        relatorio.get_relatorio_veiculos()
+        relatorio.get_relatorio_Veiculo()
     elif opcao_relatorio == 2:
-        relatorio.get_relatorio_clientes()
+        relatorio.get_relatorio_Cliente()
     
 
 def inserir(opcao_inserir:int=0):
@@ -36,10 +36,10 @@ def atualizar(opcao_atualizar:int=0):
 def excluir(opcao_excluir:int=0):
 
     if opcao_excluir == 1:
-        relatorio.get_relatorio_veiculo()
+        relatorio.get_relatorio_Veiculo()
         ctrl_veiculo.excluir_veiculo()
     elif opcao_excluir == 2:                
-        relatorio.get_relatorio_clientes()
+        relatorio.get_relatorio_Cliente()
         ctrl_cliente.excluir_cliente()
     
 def run():
