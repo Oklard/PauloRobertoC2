@@ -27,10 +27,10 @@ def inserir(opcao_inserir:int=0):
 def atualizar(opcao_atualizar:int=0):
 
     if opcao_atualizar == 1:
-        relatorio.get_relatorio_produtos()
+        relatorio.get_relatorio_Veiculo()
         veiculo_atualizada = ctrl_veiculo.atualizar_veiculo()
     elif opcao_atualizar == 2:
-        relatorio.get_relatorio_clientes()
+        relatorio.get_relatorio_Cliente()
         cliente_atualizado = ctrl_cliente.atualizar_cliente()
     
 def excluir(opcao_excluir:int=0):
