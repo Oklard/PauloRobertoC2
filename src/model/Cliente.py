@@ -1,19 +1,10 @@
 class Cliente:
     def __init__(self,
-                 idCliente:int=None,
-                 nome:str=None,
                  CPF:str=None,
-                 email:str=None,
-                 telefone:str=None,
-                 endereco:str=None
-                 
+                 nome:str=None
                 ):
-        self.set_idCliente(idCliente)
         self.set_CPF(CPF)
         self.set_nome(nome)
-        self.set_email(email)
-        self.set_telefone(telefone)
-        self.set_endereco(endereco)
         
         ### SETTERS ###
     def set_idCliente(self, idCliente:int):
